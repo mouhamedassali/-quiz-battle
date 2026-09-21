@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Quiz Battle</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#0f172a;color:#fff;min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px}
+.card{width:min(700px,100%);background:#172033;border:1px solid #334155;border-radius:24px;padding:28px;box-shadow:0 20px 60px #0006}
+h1{font-size:38px;text-align:center;margin:0 0 8px}.sub{text-align:center;color:#94a3b8;margin-bottom:25px}
+button,input{width:100%;padding:14px;border-radius:12px;font-size:16px;margin-top:10px}button{border:0;background:#6366f1;color:#fff;font-weight:bold;cursor:pointer}button.secondary{background:#334155}
+input{border:1px solid #475569;background:#0f172a;color:#fff}
+.code{text-align:center;font-size:42px;font-weight:900;letter-spacing:8px;margin:20px 0}
+.answers{display:grid;grid-template-columns:1fr 1fr;gap:12px}.answers button{text-align:left;background:#26344d}
+.timer{text-align:center;font-size:36px;font-weight:900;margin:15px}.score{text-align:center;color:#a5b4fc}
+@media(max-width:600px){.answers{grid-template-columns:1fr}h1{font-size:30px}}
+</style>
+</head>
+<body>
+<div class="card" id="app"></div>
+<script>
+const questions=[
+ {q:"Quel est le symbole de l'électron ?",a:["e⁻","p⁺","n⁰","H⁺"],c:0},
+ {q:"Deux atomes ayant le même nombre de protons sont des…",a:["Isobares","Isotopes","Ions","Molécules"],c:1},
+ {q:"Quelle particule possède une charge positive ?",a:["Électron","Neutron","Proton","Photon"],c:2},
+ {q:"Le noyau atomique contient principalement…",a:["Électrons et photons","Protons et neutrons","Neutrons et électrons","Atomes"],c:1}
+];
+let score=0,q=0,time=15,timer;
+
+function home(){
+app.innerHTML=`<h1>🧠 Quiz Battle</h1><div class="sub">Quiz interactif pour présentation</div>
+<button onclick="host()">🎤 Créer une partie</button>
+<button class="secondary" onclick="join()">📱 Rejoindre une partie</button>`;
+}
+function host(){
+let room=Math.floor(100000+Math.random()*900000);
+app.innerHTML=`<h1>🎮 Room créée</h1><div class="sub">Partage ce code avec les joueurs</div>
+<div class="code">${room}</div><p style="text-align:center">📱 Les joueurs peuvent entrer ce code depuis leur téléphone.</p>
+<button onclick="start()">🚀 Lancer le quiz</button><button class="secondary" onclick="home()">Retour</button>`;
+}
+function join(){
+app.innerHTML=`<h1>📱 Rejoindre</h1><input id="name" placeholder="Ton nom"><input id="room" placeholder="Code de la room" maxlength="6">
+<button onclick="waiting()">Entrer dans la room</button><button class="secondary" onclick="home()">Retour</button>`;
+}
+function waiting(){
+let n=document.getElementById("name").value||"Joueur";
+app.innerHTML=`<h1>👋 ${n}</h1><div class="sub">Tu es dans la room.</div><p style="text-align:center;font-size:22px">⏳ En attente du lancement…</p><button class="secondary" onclick="home()">Quitter</button>`;
+}
+function start(){score=0;q=0;showQ()}
+function showQ(){
+if(q>=questions.length){finish();return}
+let x=questions[q];time=15;
+app.innerHTML=`<div class="score">Question ${q+1}/${questions.length} • Score: ${score}</div>
+<h1 style="font-size:28px">${x.q}</h1><div class="timer" id="timer">${time}</div>
+<div class="answers">${x.a.map((a,i)=>`<button onclick="answer(${i})">${a}</button>`).join("")}</div>`;
+clearInterval(timer);timer=setInterval(()=>{time--;document.getElementById("timer").textContent=time;if(time<=0){clearInterval(timer);answer(-1)}},1000);
+}
+function answer(i){
+clearInterval(timer);let x=questions[q];
+if(i===x.c)score+=100+time*10;
+q++;setTimeout(showQ,300);
+}
+function finish(){
+app.innerHTML=`<h1>🏆 Podium</h1><div class="score" style="font-size:46px">${score} points</div>
+<p style="text-align:center;font-size:22px">Bravo !</p><button onclick="home()">🔄 Rejouer</button>`;
+}
+home();
+</script>
+</body>
+</html>
